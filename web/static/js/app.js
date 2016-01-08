@@ -3,14 +3,6 @@ import { render } from 'react-dom';
 
 require("./../css/app.scss");
 
-export class App extends Component {
-  render() {
-    return (
-      <div>
-          <h1>oie</h1>
-        </div>
-    );
-  }
-}
+import Home from './Home.jsx'
 
-render(<App />, document.getElementById('root'));
+render(<Home />, document.getElementById('root'));
