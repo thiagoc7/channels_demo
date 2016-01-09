@@ -23,6 +23,11 @@ module.exports = {
     path: "./priv/static/js",
     filename: "app.js"
   },
+  resolve: {
+    alias: {
+      phoenix: __dirname + '/deps/phoenix/web/static/js/phoenix.js'
+    }
+  },
   module: {
         loaders: [
             {

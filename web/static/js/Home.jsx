@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { Socket } from 'phoenix';
 
 import Form from './Form.jsx';
 import Filter from './Filter.jsx';
@@ -11,28 +12,44 @@ export default class Home extends Component {
     this.state = {
       initialDate: '2016-01-01',
       finalDate: '2016-01-31',
-      tasks: [
-        {
-          date: '2016-01-01',
-          description: "bla bla bla 1"
-        },
-        {
-          date: '2016-01-02',
-          description: "bla bla bla 2"
-        }
-      ]
+      tasks: []
     }
   }
 
-  onCreate(task) {
-    this.setState({
-      tasks: [...this.state.tasks, task]
+  componentDidMount() {
+    let socket = new Socket('/socket', {
+      logger: (kind, msg, data) => { console.log(`${kind}: ${msg}`, data); }
     });
+
+    socket.connect();
+
+    this.channel = socket.channel("tasks:filterBy", {
+      initialDate: this.state.initialDate,
+      finalDate: this.state.finalDate
+    });
+
+    this.channel.join()
+        .receive("ok", resp => this.setState({tasks: resp.tasks}) )
+        .receive("error", reason => console.log("join failed", reason) );
+
+    this.channel.on("new_task", task => this.setState({
+      tasks: [task, ...this.state.tasks]
+    }));
+
+    this.channel.on("all_tasks", resp => this.setState({
+      tasks: resp.tasks
+    }));
+  }
+
+  onCreate(task) {
+    this.channel.push("new_task", task)
+        .receive("error", e => console.log(e) )
   }
 
   onFilter(dates) {
     this.setState(dates);
-    console.log(dates)
+    this.channel.push("new_query_params", dates)
+        .receive("error", e => console.log(e) )
   }
 
   render() {

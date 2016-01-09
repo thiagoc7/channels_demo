@@ -552,3 +552,10 @@ there.
 /* Larger than tablet */
 /* Larger than desktop */
 /* Larger than Desktop HD */
+h3 {
+  color: #345568;
+}
+
+body {
+  background: #f6f6f6;
+}
